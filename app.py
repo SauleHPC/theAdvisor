@@ -20,7 +20,8 @@ class CustomJSONEncoder(json.JSONEncoder):
 @app.route('/papers', methods=['GET'])
 def get_papers():
     papers_list = []
-    for paper in collection.find():
+    # Use MongoDB's $sample to randomly select 50 documents
+    for paper in collection.aggregate([{"$sample": {"size": 50}}]):
         paper['_id'] = str(paper['_id'])  # Convert ObjectId to string for JSON serialization
         papers_list.append(paper)
     return jsonify(papers_list)
