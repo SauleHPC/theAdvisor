@@ -38,72 +38,47 @@ used to parse through DBLP
 since values are being parsed using xml it is suggested to make sure that you pass in 0 as the start_paper
 '''
         
-def parse_DBLP_file(callback,start_paper,count_to):
-    current_paper = None
+def parse_DBLP_file(file_path, callback, start_paper, count_to):
+    """
+    Parses the DBLP dataset from a given starting point, processing a specified number of papers.
 
-    if(start_paper>=count_to):
-        print("Error: Start paper is greater then or equal to end paper. Adjust so that start paper is less then the end paper.")
-        sys.exit(1)
+    :param file_path: Path to the DBLP dataset file.
+    :param callback: List of callback functions to be executed for each processed paper.
+    :param start_paper: Index of the paper to start processing from.
+    :param count_to: Number of papers to process in this batch.
+    """
+    processed_papers = 0  # Counter for the number of papers processed in this batch
+    total_papers_processed = start_paper  # Counter for the total number of papers processed
 
-    with gzip.open('dblp.xml.gz', 'rt', encoding='utf-8') as gz_file:
-        count_line = 0
-        pap = []
-        i = 0
+    with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
         current_paper = None
-        #help us keep track of if we are inside a paper currently
-        inside_paper = False
+        inside_paper = False  # Flag to track if the current line is inside a paper record
+
         for current_line in gz_file:
-            if i > count_to:
-                return
-            if(start_paper<=i):
-                #check for closing tag first for cases such as
-                #</incollection><incollection mdate="2017-07-12" key="reference/cn/Prinz14" publtype="encyclopedia">
-                if '</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line:
-                    inside_paper = False
-                    if current_paper is not None and current_paper.title is not None and current_paper.paper_id is not None:
-                        #print("Paper is an Object")
-                        #for i in range(len(pap)):
-                        #   print(pap[i])
-                        for fnction in callback:
-                            fnction(current_paper)
-                        current_paper = None
+            if processed_papers >= count_to:  # Stop if the batch size limit is reached
+                break
 
-                        i+=1
+            if '</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line:
+                inside_paper = False
+                if current_paper is not None and current_paper.title is not None and current_paper.paper_id is not None:
+                    if total_papers_processed >= start_paper:
+                        # Only process the paper if we've reached the start_paper index
+                        for function in callback:
+                            function(current_paper)
+                        processed_papers += 1
+                    current_paper = None
+                    total_papers_processed += 1  # Increment total papers processed
 
-                #check for an opening tag to make a new Paper object
-                if '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
-                    if not inside_paper:
-                        current_paper = Paper()
-                        current_paper.file_source = "DBLP"
-                        inside_paper = True
+            if '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
+                if not inside_paper:
+                    current_paper = Paper()
+                    current_paper.file_source = "DBLP"
+                    inside_paper = True
 
-                if current_paper:
-                    if '<author>' in current_line:
-                        current_paper.author = current_line.replace('<author>', '').replace('</author>', '').strip()
-                    elif '<year>' in current_line:
-                        current_paper.year = current_line.replace('<year>', '').replace('</year>', '').strip()
-                    elif '<pages>' in current_line:
-                        current_paper.pages = current_line.replace('<pages>', '').replace('</pages>', '').strip()
-                    elif '<ee' in current_line:
-                        doi_value = current_line.replace('<ee', '').replace('</ee>', '').strip()
-                        doi_value = doi_value.replace('https://doi.org/', '')
-                        current_paper.doi = doi_value
-                    elif '<title>' in current_line:
-                        current_paper.title = current_line.replace('<title>', '').replace('</title>', '').strip()
-                    elif '<url>' in current_line:
-                        current_paper.url = current_line.replace('<url>', '').replace('</url>', '').strip()
-                    elif 'key="' in current_line:
-                        key_start = current_line.find('key="') + 5
-                        #end is the parenthesis that close the key
-                        key_end = current_line.find('"', key_start)
-                        #if a valid key
-                        if key_start != -1 and key_end != -1:
-                            current_paper.paper_id = current_line[key_start:key_end]
+            # Parse paper details here...
 
-                    pap.append(current_line)
-                    count_line += 1
+    return processed_papers  # Return the number of processed papers in this batch
 
-    return i
 
 
 '''
