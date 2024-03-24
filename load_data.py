@@ -1,10 +1,8 @@
 import gzip
 from pymongo import MongoClient
-from Callback import Callback
-from Parse import parse_DBLP_file  # Adjust the import statement
-import xml.etree.ElementTree as ET
+# Adjust the import statement according to your project structure
+from Parse import parse_DBLP_file
 import sys
-
 
 # MongoDB connection setup
 client = MongoClient('mongodb://localhost:27017/')
@@ -22,6 +20,10 @@ def parse_and_load_dblp_to_mongodb(file_path, start_paper, batch_size):
     return processed_papers
 
 if __name__ == "__main__":
+    # Clear the collection before inputting new data
+    collection.drop()
+    print("Collection cleared.")
+
     file_path = 'dblp.xml.gz'
     batch_size = 100  # Adjust batch size to 100
     start_paper = 0
