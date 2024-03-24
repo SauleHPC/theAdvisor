@@ -24,7 +24,7 @@ if __name__ == "__main__":
     collection.drop()
     print("Collection cleared.")
 
-    file_path = 'dblp.xml.gz'
+    file_path = 'dblp-2023-05-11.xml.gz'
     batch_size = 1000  # You can adjust the batch size based on your system's capabilities
     start_paper = 0
     total_processed = 0
