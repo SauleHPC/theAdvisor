@@ -25,19 +25,24 @@ if __name__ == "__main__":
     print("Collection cleared.")
 
     file_path = 'dblp-2023-05-11.xml.gz'
-    batch_size = 1000  # You can adjust the batch size based on your system's capabilities
+    batch_size = 100  # Adjusted batch size to process 100 papers at a time
     start_paper = 0
     total_processed = 0
+    limit = 1000  # Limit to process only 1000 papers
 
-    # Loop to process the dataset in batches until all papers have been processed
-    while True:
+    # Loop to process the dataset in batches until 1000 papers have been processed
+    while total_processed < limit:
         processed_papers = parse_and_load_dblp_to_mongodb(file_path, start_paper, batch_size)
         if processed_papers == 0:
             # No more papers processed, end the loop
-            print("Finished processing all papers.")
+            print("Finished processing all papers or reached limit.")
             break
         total_processed += processed_papers
         print(f"Processed {total_processed} papers so far...")
         start_paper += processed_papers
+
+        # Adjust the batch size if the remaining papers to process is less than the batch size
+        if total_processed + batch_size > limit:
+            batch_size = limit - total_processed
 
     print(f"Total papers processed: {total_processed}.")
