@@ -5,7 +5,7 @@ from Parse import parse_DBLP_file
 import sys
 
 # MongoDB connection setup
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb://localhost:11111/')
 db = client['dblp']
 collection = db['papers']
 
