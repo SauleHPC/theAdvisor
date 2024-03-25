@@ -18,7 +18,7 @@ def objectIdToStr(item):
 # Your route to fetch and return papers
 @app.route('/papers')
 def get_papers():
-    papers = list(collection.find().limit(50))  # Fetch 50 papers
+    papers = list(collection.find().limit(500))  # Fetch 50 papers
     for paper in papers:
         paper['_id'] = objectIdToStr(paper['_id'])  # Convert ObjectId to string
     return jsonify(papers)
