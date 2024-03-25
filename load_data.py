@@ -1,48 +1,37 @@
-import gzip
-from pymongo import MongoClient
-# Adjust the import statement according to your project structure
-from Parse import parse_DBLP_file
 import sys
+from pymongo import MongoClient
+from Parse import parse_DBLP_file, parse_MAG_file, Paper
 
-# MongoDB connection setup
-client = MongoClient('mongodb://localhost:11111/')
+# Setup MongoDB connection
+client = MongoClient('localhost', 27017)
 db = client['dblp']
 collection = db['papers']
 
-# Callback function to insert papers into MongoDB collection
-def insert_paper_to_mongodb(paper):
-    collection.insert_one(paper.__dict__)
+def insert_into_mongodb(paper):
+    try:
+        paper_dict = paper.__dict__
+        collection.insert_one(paper_dict)
+        print(f"Inserted: {paper.title}")
+    except Exception as e:
+        print(f"Error inserting {paper.title} into MongoDB: {e}")
 
-def parse_and_load_dblp_to_mongodb(file_path, start_paper, batch_size):
-    callback = [insert_paper_to_mongodb]
-    # Process a batch of papers and return the number of papers processed
-    processed_papers = parse_DBLP_file(file_path, callback, start_paper, batch_size)
-    return processed_papers
-
-if __name__ == "__main__":
-    # Clear the collection before inputting new data
+def main():
+    # Clear the collection before loading new data
     collection.drop()
     print("Collection cleared.")
 
-    file_path = 'dblp-2023-05-11.xml.gz'
-    batch_size = 100  # Adjusted batch size to process 100 papers at a time
-    start_paper = 0
-    total_processed = 0
-    limit = 1000  # Limit to process only 1000 papers
+    # Callback functions to apply to each paper
+    callbacks = [insert_into_mongodb]
 
-    # Loop to process the dataset in batches until 1000 papers have been processed
-    while total_processed < limit:
-        processed_papers = parse_and_load_dblp_to_mongodb(file_path, start_paper, batch_size)
-        if processed_papers == 0:
-            # No more papers processed, end the loop
-            print("Finished processing all papers or reached limit.")
-            break
-        total_processed += processed_papers
-        print(f"Processed {total_processed} papers so far...")
-        start_paper += processed_papers
+    # Load papers from DBLP dataset
+    print("Starting to load papers from DBLP...")
+    dblp_paper_count = parse_DBLP_file(callbacks, 0, 100)  # Adjust as needed
+    print(f"Finished loading {dblp_paper_count} papers from DBLP.")
 
-        # Adjust the batch size if the remaining papers to process is less than the batch size
-        if total_processed + batch_size > limit:
-            batch_size = limit - total_processed
+    # Optional: Load papers from MAG dataset
+    # print("Starting to load papers from MAG...")
+    # mag_paper_count = parse_MAG_file(callbacks, 0, 100)  # Adjust as needed
+    # print(f"Finished loading {mag_paper_count} papers from MAG.")
 
-    print(f"Total papers processed: {total_processed}.")
+if __name__ == "__main__":
+    main()
