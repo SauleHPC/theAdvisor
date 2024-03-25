@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from Parse import parse_DBLP_file, Paper
 
 # Setup MongoDB connection
-client = MongoClient('localhost', 27017)
+client = MongoClient('localhost', 11111)
 db = client['dblp']
 collection = db['papers']
 
@@ -40,4 +40,4 @@ def load_papers_in_batches(file_path):
     print("Finished loading papers from DBLP.")
 
 if __name__ == "__main__":
-    load_papers_in_batches('dblp.xml.gz')
+    load_papers_in_batches('dblp-2023-05-11.xml.gz')
