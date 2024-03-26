@@ -5,7 +5,7 @@ from pymongo import MongoClient
 app = Flask(__name__)
 
 # Setup MongoDB connection
-client = MongoClient('localhost', 11111)
+client = MongoClient('10.18.206.132', 11111)
 db = client['dblp']
 collection = db['papers']
 
@@ -18,10 +18,11 @@ def objectIdToStr(item):
 # Your route to fetch and return papers
 @app.route('/papers')
 def get_papers():
-    papers = list(collection.find().limit(500))  # Fetch 50 papers
+    papers = list(collection.find().limit(5000))  # Fetch 50 papers
     for paper in papers:
         paper['_id'] = objectIdToStr(paper['_id'])  # Convert ObjectId to string
     return jsonify(papers)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
+

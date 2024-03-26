@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from Parse import parse_DBLP_file, Paper
 
 # Setup MongoDB connection
-client = MongoClient('localhost', 11111)
+client = MongoClient('10.18.206.132', 11111)
 db = client['dblp']
 collection = db['papers']
 
@@ -18,7 +18,7 @@ def insert_into_mongodb(paper):
     paper_batch.append(paper_dict)
     
     # When the batch reaches 100 papers, insert them into MongoDB and clear the batch
-    if len(paper_batch) == 100:
+    if len(paper_batch) == 1000:
         try:
             collection.insert_many(paper_batch)
             print(f"Inserted batch of {len(paper_batch)} papers.")
@@ -36,8 +36,8 @@ def load_papers_in_batches(file_path):
 
     # Load papers from DBLP dataset in batches
     print("Starting to load papers from DBLP...")
-    parse_DBLP_file(callback, 0, 1000)  # Adjust count_to as needed
+    parse_DBLP_file(callback, 0, 100000)  # Adjust count_to as needed
     print("Finished loading papers from DBLP.")
 
 if __name__ == "__main__":
-    load_papers_in_batches('dblp-2023-05-11.xml.gz')
+    load_papers_in_batches('dblp.xml.gz')
