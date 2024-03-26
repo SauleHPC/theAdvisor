@@ -5,7 +5,7 @@ from pymongo import MongoClient
 app = Flask(__name__)
 
 # Setup MongoDB connection
-client = MongoClient('10.18.206.132', 11111)
+client = MongoClient('localhost', 11111)
 db = client['dblp']
 collection = db['papers']
 
@@ -23,6 +23,5 @@ def get_papers():
         paper['_id'] = objectIdToStr(paper['_id'])  # Convert ObjectId to string
     return jsonify(papers)
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0')
-
+if __name__ == '__main__':
+    app.run(debug=True)
