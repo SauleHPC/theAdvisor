@@ -36,8 +36,17 @@ def load_papers_in_batches(file_path):
 
     # Load papers from DBLP dataset in batches
     print("Starting to load papers from DBLP...")
-    parse_DBLP_file(callback, 0, 100000)  # Adjust count_to as needed
+    parse_DBLP_file(callback, 0, sys.maxsize)  # Use sys.maxsize to attempt to parse the entire file
     print("Finished loading papers from DBLP.")
+    
+    # Insert any remaining papers in the batch
+    if paper_batch:  # Check if there are any papers left in the batch
+        try:
+            collection.insert_many(paper_batch)
+            print(f"Inserted the final batch of {len(paper_batch)} papers.")
+        except Exception as e:
+            print(f"Error inserting the final batch into MongoDB: {e}")
+
 
 if __name__ == "__main__":
     load_papers_in_batches('dblp-2023-05-11.xml.gz')
