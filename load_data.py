@@ -7,6 +7,8 @@ client = MongoClient('localhost', 11111)
 db = client['theadvisor']
 collection = db['dblp']
 
+db.dblp.create_index([("paper_id", 1)])
+
 # Global variable to accumulate papers for batch insertion
 paper_batch = []
 
