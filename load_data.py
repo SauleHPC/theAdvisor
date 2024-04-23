@@ -4,8 +4,8 @@ from Parse import parse_DBLP_file, Paper
 
 # Setup MongoDB connection
 client = MongoClient('localhost', 11111)
-db = client['dblp']
-collection = db['papers']
+db = client['theadvisor']
+collection = db['dblp']
 
 # Global variable to accumulate papers for batch insertion
 paper_batch = []
