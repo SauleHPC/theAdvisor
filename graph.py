@@ -6,8 +6,8 @@ from bson.objectid import ObjectId
 def create_graph():
     # Setup MongoDB connection
     client = MongoClient('localhost', 11111)
-    db = client['theadvisor']  # Change 'your_database_name' to your actual database name
-    matches = db.match  # Assuming 'matched' is the collection with matched data
+    db = client['theadvisor']  
+    matches = db.theadvisor_papers  
 
     # Initialize a directed graph
     G = nx.DiGraph()
@@ -25,18 +25,13 @@ def create_graph():
 def draw_graph(G):
     pos = nx.spring_layout(G)  # positions for all nodes
 
-    # Nodes
-    nx.draw_networkx_nodes(G, pos, node_size=700, node_color='skyblue', label=[(n, d['title']) for n, d in G.nodes(data=True)])
-
-    # Edges
+    nx.draw_networkx_nodes(G, pos, node_size=700, node_color='skyblue')
     nx.draw_networkx_edges(G, pos, edgelist=G.edges(), arrowstyle='-|>', arrowsize=20, edge_color='c', style='dashed')
-
-    # Labels
     labels = {node: node for node in G.nodes()}
     nx.draw_networkx_labels(G, pos, labels, font_size=12, font_family='sans-serif')
 
-    plt.axis('off')  # Turn off the axis
-    plt.show()  # Display the graph
+    plt.axis('off')
+    plt.savefig('/home/relhadid/image.png')  # Save the plot as a PNG file
 
 if __name__ == "__main__":
     G = create_graph()
